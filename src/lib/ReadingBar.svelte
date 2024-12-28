@@ -1,9 +1,6 @@
 <script>
-	import { goto } from "$app/navigation";
-
 	export let contentsShow = false;
 	export let title;
-	export let selectBook = {num: 0};
 
 	let isVisible = false;
 
@@ -15,46 +12,39 @@
 		contentsShow = !contentsShow;
 		toggleShowMenu();
 	}
-
-	function openHyperion() {
-		selectBook.num = 0;
-		console.log(selectBook.num);
-		toggleShowMenu();
-		goto('/',{state: selectBook});
-	}
-
-	function openDune() {
-		selectBook.num = 1;
-		console.log(selectBook.num);
-		toggleShowMenu();
-		goto('/', {state: selectBook});
-	}
-
-	function openDead() {
-		selectBook.num = 2;
-		console.log(selectBook.num);
-		toggleShowMenu();
-		goto('/', {state:selectBook});
-	}
 </script>
 
 <div class="header">
 	<nav class="navbar">
-		<a href="#" class="brand"> &larr;</a>
+		<a href="/" class="brand">&larr;</a>
 		<div>{title}</div>
-		<div class="nav-links" id="navLinks" class:show={isVisible}>
-			<button on:click={openHyperion}>Hyperion</button>
-			<button on:click={openDune}>Dune</button>
-			<button on:click={openDead}>Speaking for the Dead</button>
+		<div class="controls">
+			<button 
+				aria-label="Styles" 
+				class="m-1 rounded-[0.5rem] px-2 py-1 font-bold duration-300 border border-[#585858] shadow-sm shadow-[#585858] hover:opacity-80 hover:duration-200 active:opacity-80 active:shadow-none active:duration-200"
+			>
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					width="16"
+					height="16"
+					fill="currentColor"
+					class="bi bi-brush"
+					viewBox="0 0 16 16"
+				>
+					<path
+						d="M15.825.12a.5.5 0 0 1 .132.584c-1.53 3.43-4.743 8.17-7.095 10.64a6.1 6.1 0 0 1-2.373 1.534c-.018.227-.06.538-.16.868-.201.659-.667 1.479-1.708 1.74a8.1 8.1 0 0 1-3.078.132 4 4 0 0 1-.562-.135 1.4 1.4 0 0 1-.466-.247.7.7 0 0 1-.204-.288.62.62 0 0 1 .004-.443c.095-.245.316-.38.461-.452.394-.197.625-.453.867-.826.095-.144.184-.297.287-.472l.117-.198c.151-.255.326-.54.546-.848.528-.739 1.201-.925 1.746-.896q.19.012.348.048c.062-.172.142-.38.238-.608.261-.619.658-1.419 1.187-2.069 2.176-2.67 6.18-6.206 9.117-8.104a.5.5 0 0 1 .596.04M4.705 11.912a1.2 1.2 0 0 0-.419-.1c-.246-.013-.573.05-.879.479-.197.275-.355.532-.5.777l-.105.177c-.106.181-.213.362-.32.528a3.4 3.4 0 0 1-.76.861c.69.112 1.736.111 2.657-.12.559-.139.843-.569.993-1.06a3 3 0 0 0 .126-.75zm1.44.026c.12-.04.277-.1.458-.183a5.1 5.1 0 0 0 1.535-1.1c1.9-1.996 4.412-5.57 6.052-8.631-2.59 1.927-5.566 4.66-7.302 6.792-.442.543-.795 1.243-1.042 1.826-.121.288-.214.54-.275.72v.001l.575.575zm-4.973 3.04.007-.005zm3.582-3.043.002.001h-.002z"
+					/>
+				</svg>
+			</button>
 			<button
-				aria-label="Contents"
-				class="m-1 rounded-[0.5rem] bg-[gainsboro] px-2 py-1 font-bold duration-300"
+				aria-label="Contents"				
+				class="m-1 rounded-[0.5rem] px-2 py-1 font-bold duration-300 border border-[#585858] shadow-sm shadow-[#585858] hover:opacity-80 hover:duration-200 active:opacity-80 active:shadow-none active:duration-200"
 				on:click={toggleContents}
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
-					width="32"
-					height="32"
+					width="16"
+					height="16"
 					fill="currentColor"
 					class="bi bi-list-ul"
 					viewBox="0 0 16 16"
@@ -66,26 +56,6 @@
 				</svg>
 			</button>
 		</div>
-		<button
-			aria-label="Navigation list - burger button"
-			class="menu-btn"
-			id="menuBtn"
-			on:click={toggleShowMenu}
-		>
-			<svg
-				xmlns="http://www.w3.org/2000/svg"
-				width="32"
-				height="32"
-				fill="currentColor"
-				class="bi bi-list"
-				viewBox="0 0 16 16"
-			>
-				<path
-					fill-rule="evenodd"
-					d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"
-				/>
-			</svg>
-		</button>
 	</nav>
 </div>
 
@@ -108,53 +78,17 @@
 		padding: 4px 0;
 	}
 
+	div.controls {
+		display: flex;
+	}
+
 	.brand {
 		text-decoration: none;
 		font-weight: bold;
-		font-size: xx-large;
-	}
-
-	.nav-links {
-		display: flex;
-		align-items: center;
-
-		gap: 15px;
-	}
-
-	.nav-links a {
-		text-decoration: none;
-	}
-
-	.menu-btn {
-		display: none;
-		border: none;
-		cursor: pointer;
+		font-size: x-large;
 	}
 
 	/* Media Query */
 	@media (max-width: 564px) {
-		.nav-links {
-			display: none;
-			flex-direction: column;
-			position: absolute;
-			top: 10vh;
-			right: 5%;
-			max-height: 80vh;
-			overflow-y: scroll;
-			background-color: white;
-			padding: 24px;
-			border: 1px solid #555;
-			border-radius: 8px;
-			box-shadow: 0px 15px 25px rgba(0, 0, 0, 0.25);
-			z-index: 10;
-		}
-
-		.nav-links.show {
-			display: flex;
-		}
-
-		.menu-btn {
-			display: block;
-		}
 	}
 </style>

@@ -1,9 +1,6 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import '../variables.css';
 	import '../app.css';
-	import { browser } from '$app/environment';
 	let { children } = $props();
-
 </script>
-
 {@render children()}
