@@ -25,4 +25,4 @@ vite.config.ts.timestamp-*
 .vscode
 
 # Books
-static
+static/*.epub

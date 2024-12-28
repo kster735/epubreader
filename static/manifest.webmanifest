@@ -1,0 +1,15 @@
+{
+  "short_name": "EPBR",
+  "name": "Epub Reader",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "white",
+  "backgroundColor": "brown"
+}
