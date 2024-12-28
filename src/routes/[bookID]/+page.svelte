@@ -105,18 +105,20 @@
 			}
 		};
 
-		var root = document.querySelector(':root');
+		var root : HTMLElement | null = document.querySelector(':root');
 
+
+		
 		var oldLibThemeDark = {
 			body: {
-				color: getComputedStyle(root).getPropertyValue('--oldlib-color'),
+				color: (root!=null) ? getComputedStyle(root).getPropertyValue('--oldlib-color') : 'white',
 				'font-family': 'Segoe UI'
 			}
 		};
 
 		var oldLibThemeLight = {
 			body: {
-				color: getComputedStyle(root).getPropertyValue('--oldlib-bg'),
+				color: (root!=null) ? getComputedStyle(root).getPropertyValue('--oldlib-bg') : 'black',
 				'font-family': 'Segoe UI'
 			}
 		};
