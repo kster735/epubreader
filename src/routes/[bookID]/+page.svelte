@@ -11,8 +11,8 @@
 	let sbookID = data.book !== null ? data.book : 0;
 	let bookID = +sbookID;
 
-	var currentPage: HTMLInputElement = $state();
-	let slider: HTMLInputElement = $state();
+	var currentPage:HTMLInputElement;
+	let slider: HTMLInputElement;
 
 	let sliderValue = $state(0);
 	var rendition: Rendition;
@@ -21,7 +21,7 @@
 	var book: Book;
 	let maxPages = $state(100);
 	let contentsShow: boolean = $state(false);
-	let title: String = $state();
+	let title: String = $state("");
 	let books = [
 		'Hyperion-Dan Simmons.epub',
 		'Dune-FrankHerbert.epub',
@@ -261,7 +261,7 @@
 			</li>
 			{#each cnts as c}
 				<li>
-					<a href={c.href} class="font-bold text-purple-800" onclick={goToChapter}>
+					<a href={c.href} class="font-medium text-indigo-200 hover:text-indigo-300 active:text-indigo-300" onclick={goToChapter}>
 						{c.label.trim()}
 					</a>
 					<hr class="color-black" />
@@ -380,7 +380,7 @@
 		min-height: 100vh;
 		font-size: x-large;
 		display: none;
-		background-color: #ffffff;
+		background-color: inherit;
 		color: inherit;
 		width: 100%;
 		padding: 25px;
