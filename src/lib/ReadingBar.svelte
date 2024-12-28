@@ -1,6 +1,10 @@
-<script>
-	export let contentsShow = false;
-	export let title;
+<script lang="ts">
+	interface Props {
+		contentsShow?: boolean;
+		title: any;
+	}
+
+	let { contentsShow = $bindable(false), title }: Props = $props();
 
 	let isVisible = false;
 
@@ -39,7 +43,7 @@
 			<button
 				aria-label="Contents"				
 				class="m-1 rounded-[0.5rem] px-2 py-1 font-bold duration-300 border border-[#585858] shadow-sm shadow-[#585858] hover:opacity-80 hover:duration-200 active:opacity-80 active:shadow-none active:duration-200"
-				on:click={toggleContents}
+				onclick={toggleContents}
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"

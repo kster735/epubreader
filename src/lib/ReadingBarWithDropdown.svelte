@@ -1,8 +1,12 @@
-<script>
-	export let contentsShow = false;
-	export let title;
+<script lang="ts">
+	interface Props {
+		contentsShow?: boolean;
+		title: any;
+	}
 
-	let isVisible = false;
+	let { contentsShow = $bindable(false), title }: Props = $props();
+
+	let isVisible = $state(false);
 
 	function toggleShowMenu() {
 		isVisible = !isVisible;
@@ -23,7 +27,7 @@
 			<button
 				aria-label="Contents"
 				class="m-1 rounded-[0.5rem] bg-[gainsboro] px-2 py-1 font-bold duration-300"
-				on:click={toggleContents}
+				onclick={toggleContents}
 			>
 				<svg
 					xmlns="http://www.w3.org/2000/svg"
@@ -44,7 +48,7 @@
 			aria-label="Navigation list - burger button"
 			class="menu-btn"
 			id="menuBtn"
-			on:click={toggleShowMenu}
+			onclick={toggleShowMenu}
 		>
 			<svg
 				xmlns="http://www.w3.org/2000/svg"

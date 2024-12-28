@@ -1,25 +1,27 @@
 <script lang="ts">
+	import { run } from 'svelte/legacy';
+
 	import ReadingBar from '$lib/ReadingBar.svelte';
 	import ePub, { Book, Rendition } from 'epubjs';
 
 	import { onMount } from 'svelte';
 	import { contents } from '$lib/stores/contents';
 
-	export let data;
+	let { data } = $props();
 	let sbookID = data.book !== null ? data.book : 0;
 	let bookID = +sbookID;
 
-	var currentPage: HTMLInputElement;
-	let slider: HTMLInputElement;
+	var currentPage: HTMLInputElement = $state();
+	let slider: HTMLInputElement = $state();
 
-	let sliderValue = 0;
+	let sliderValue = $state(0);
 	var rendition: Rendition;
 	var displayed: any;
 	let currentPageValue = 0;
 	var book: Book;
-	let maxPages = 100;
-	let contentsShow: boolean = false;
-	let title: String;
+	let maxPages = $state(100);
+	let contentsShow: boolean = $state(false);
+	let title: String = $state();
 	let books = [
 		'Hyperion-Dan Simmons.epub',
 		'Dune-FrankHerbert.epub',
@@ -33,14 +35,14 @@
 		label: string;
 		href: string;
 	}
-	let cnts: ContentsItem[] = [];
-	$: {
+	let cnts: ContentsItem[] = $state([]);
+	run(() => {
 		$contents.forEach((item: ContentsItem) => {
 			cnts = [...cnts, { label: item.label, href: item.href }];
 		});
 
 		console.log('Contents: ', cnts);
-	}
+	});
 
 	function goToChapter(e: any) {
 		e.preventDefault();
@@ -238,7 +240,7 @@
 				<button
 					class="m-4"
 					aria-label="Close Contents"
-					on:click={() => (contentsShow = !contentsShow)}
+					onclick={() => (contentsShow = !contentsShow)}
 				>
 					<svg
 						xmlns="http://www.w3.org/2000/svg"
@@ -259,7 +261,7 @@
 			</li>
 			{#each cnts as c}
 				<li>
-					<a href={c.href} class="font-bold text-purple-800" on:click={goToChapter}>
+					<a href={c.href} class="font-bold text-purple-800" onclick={goToChapter}>
 						{c.label.trim()}
 					</a>
 					<hr class="color-black" />
@@ -271,14 +273,14 @@
 		<ReadingBar bind:contentsShow {title} />
 	</div>
 	<div class="viewer-arrows">
-		<a id="prev" on:click={(e) => prev(e)} href="#prev" class="arrow"><span>‹</span></a>
+		<a id="prev" onclick={(e) => prev(e)} href="#prev" class="arrow"><span>‹</span></a>
 		<div id="viewer"></div>
-		<a id="next" on:click={(e) => next(e)} href="#next" class="arrow"><span>›</span></a>
+		<a id="next" onclick={(e) => next(e)} href="#next" class="arrow"><span>›</span></a>
 	</div>
 
 	<div id="controls">
 		<input
-			on:change={updatePage}
+			onchange={updatePage}
 			type="number"
 			bind:this={currentPage}
 			id="current-percent"
