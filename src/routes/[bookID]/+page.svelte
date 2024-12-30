@@ -11,8 +11,9 @@
 	let sbookID = data.book !== null ? data.book : 0;
 	let bookID = +sbookID;
 
-	var currentPage:HTMLInputElement;
+	var currentPage: HTMLInputElement;
 	let slider: HTMLInputElement;
+	let container: HTMLElement;
 
 	let sliderValue = $state(0);
 	var rendition: Rendition;
@@ -21,7 +22,7 @@
 	var book: Book;
 	let maxPages = $state(100);
 	let contentsShow: boolean = $state(false);
-	let title: String = $state("");
+	let title: String = $state('');
 	let books = [
 		'Hyperion-Dan Simmons.epub',
 		'Dune-FrankHerbert.epub',
@@ -79,6 +80,12 @@
 	onMount(() => {
 		book = ePub(books[+bookID]);
 
+		// if (container !== null) {
+		// 	container.requestFullscreen().catch((err) => {
+		// 		alert(`Error attempting to enable fullscreen mode: ${err.message} (${err.name})`);
+		// 	});
+		// }
+
 		rendition = book.renderTo('viewer', {
 			width: '100%',
 			height: '100%',
@@ -107,20 +114,18 @@
 			}
 		};
 
-		var root : HTMLElement | null = document.querySelector(':root');
+		var root: HTMLElement | null = document.querySelector(':root');
 
-
-		
 		var oldLibThemeDark = {
 			body: {
-				color: (root!=null) ? getComputedStyle(root).getPropertyValue('--oldlib-color') : 'white',
+				color: root != null ? getComputedStyle(root).getPropertyValue('--oldlib-color') : 'white',
 				'font-family': 'Segoe UI'
 			}
 		};
 
 		var oldLibThemeLight = {
 			body: {
-				color: (root!=null) ? getComputedStyle(root).getPropertyValue('--oldlib-bg') : 'black',
+				color: root != null ? getComputedStyle(root).getPropertyValue('--oldlib-bg') : 'black',
 				'font-family': 'Segoe UI'
 			}
 		};
@@ -231,9 +236,11 @@
 
 <svelte:head>
 	<meta name="theme-color" content="rgb(60, 58, 58)" />
+	<meta name="msappliccation-navbutton-color" content="rgb(60, 58, 58)" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="rgb(60, 58, 58)" />
 </svelte:head>
 
-<div class="container">
+<div class="container" bind:this={container}>
 	<div class="contents" class:show={contentsShow}>
 		<ul>
 			<li class="text-end">
@@ -261,7 +268,11 @@
 			</li>
 			{#each cnts as c}
 				<li>
-					<a href={c.href} class="font-medium text-indigo-200 hover:text-indigo-300 active:text-indigo-300" onclick={goToChapter}>
+					<a
+						href={c.href}
+						class="font-medium text-indigo-200 hover:text-indigo-300 active:text-indigo-300"
+						onclick={goToChapter}
+					>
 						{c.label.trim()}
 					</a>
 					<hr class="color-black" />

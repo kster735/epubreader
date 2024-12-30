@@ -11,5 +11,5 @@
   "start_url": ".",
   "display": "standalone",
   "theme_color": "white",
-  "backgroundColor": "brown"
+  "backgroundColor": "rgb(60, 58, 58)"
 }
