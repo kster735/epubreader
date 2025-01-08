@@ -1,19 +1,23 @@
 <script lang="ts">
+	// https://github.com/pgaskin/ePubViewer
 	import { run } from 'svelte/legacy';
+	import { fly, slide, fade, crossfade, draw, scale, blur } from 'svelte/transition';
 
 	import ReadingBar from '$lib/ReadingBar.svelte';
 	import ePub, { Book, Rendition } from 'epubjs';
 
 	import { onMount } from 'svelte';
 	import { contents } from '$lib/stores/contents';
+	import { backIn, backOut, expoIn, expoOut, quadIn, quadOut } from 'svelte/easing';
+	import type { RenditionOptions } from 'epubjs/types/rendition.js';
 
 	let { data } = $props();
 	let sbookID = data.book !== null ? data.book : 0;
 	let bookID = +sbookID;
-
-	var currentPage:HTMLInputElement;
+	let overlay = $state(1);
+	var currentPage: HTMLInputElement;
 	let slider: HTMLInputElement;
-
+	let root: HTMLElement | null = $state(null);
 	let sliderValue = $state(0);
 	var rendition: Rendition;
 	var displayed: any;
@@ -21,7 +25,7 @@
 	var book: Book;
 	let maxPages = $state(100);
 	let contentsShow: boolean = $state(false);
-	let title: String = $state("");
+	let title: String = $state('');
 	let books = [
 		'Hyperion-Dan Simmons.epub',
 		'Dune-FrankHerbert.epub',
@@ -30,6 +34,41 @@
 		'Madame-GustaveFlaubert.epub',
 		'moby-dick.epub'
 	];
+	let currentTheme: 'dark' | 'light' = $state('dark');
+	let bg = $state('--dark');
+	let color = $state('--light');
+	type Theme = {
+		body?: {
+			color?: string;
+			'font-family'?: string;
+		};
+		p?: {
+			color?: string;
+			'text-align'?: string;
+		};
+	} | null;
+
+	let DarkRules : Theme = {
+		body: {
+			'font-family': 'Segoe UI',
+			color: 'rgb(230, 224, 198)'
+		},
+		p: {
+			'text-align': 'left !important',
+			// color: 'rgb(60,58,58)'
+		}
+	};
+
+	let LightRules : Theme = {
+		body: {
+			'font-family': 'Segoe UI',
+			color: 'rgb(60, 58, 58)'
+		},
+		p: {
+			'text-align': 'left !important',
+			// color: 'rgb(60,58,58)'
+		}
+	};
 
 	interface ContentsItem {
 		label: string;
@@ -54,7 +93,9 @@
 		rendition.display(chapter);
 	}
 
-	var slide = function (pages: number) {
+	let isChanging: boolean = $state(false);
+
+	var slid = function (pages: number) {
 		var cfi = book.locations.cfiFromPercentage(sliderValue / pages);
 		rendition.display(cfi);
 	};
@@ -67,9 +108,15 @@
 	};
 
 	const next = (e: any) => {
+		isChanging = true;
 		rendition.next();
 		e.preventDefault();
+		setTimeout(restoreChanging, 100);
 	};
+
+	function restoreChanging() {
+		isChanging = false;
+	}
 
 	const updatePage = () => {
 		var cfi = book.locations.cfiFromPercentage(sliderValue / maxPages);
@@ -78,14 +125,13 @@
 	// console.log(JSON.stringify(data));
 	onMount(() => {
 		book = ePub(books[+bookID]);
-
 		rendition = book.renderTo('viewer', {
 			width: '100%',
 			height: '100%',
 			manager: 'default',
 			// layout: "reflowable",
-			// minSpreadWidth: 800,
-			spread: 'auto'
+			minSpreadWidth: 800,
+			spread: 'auto',
 			// resizeOnOrientationChange: false,
 			// allowScriptedContent: true
 		});
@@ -107,27 +153,7 @@
 			}
 		};
 
-		var root : HTMLElement | null = document.querySelector(':root');
-
-
-		
-		var oldLibThemeDark = {
-			body: {
-				color: (root!=null) ? getComputedStyle(root).getPropertyValue('--oldlib-color') : 'white',
-				'font-family': 'Segoe UI'
-			}
-		};
-
-		var oldLibThemeLight = {
-			body: {
-				color: (root!=null) ? getComputedStyle(root).getPropertyValue('--oldlib-bg') : 'black',
-				'font-family': 'Segoe UI'
-			}
-		};
-
-		rendition.themes.register('dark', oldLibThemeDark);
-
-		rendition.themes.register('light', oldLibThemeLight);
+		root = document.querySelector('body');
 
 		rendition.themes.default({
 			body: {
@@ -138,12 +164,19 @@
 				color: 'purple'
 			},
 			p: {
-				margin: '10px'
+				margin: '10px 0 !important',
+				'text-align': 'left'
 			}
 		});
 
-		rendition.themes.select('dark');
-		rendition.themes.fontSize('100%');
+		rendition.themes.register('main', DarkRules);
+		rendition.themes.select('main');
+
+		$effect(() => {
+			let rules = currentTheme === 'dark' ? DarkRules : LightRules;
+			rendition.themes.register('main', rules);
+			rendition.themes.select('main');
+		});
 
 		rendition.on('keyup', keyListener);
 		document.addEventListener('keyup', keyListener, false);
@@ -163,19 +196,20 @@
 						console.log('Last Location: ', lastLocation);
 						rendition.display(lastLocation);
 					}
-
+					overlay = 0;
 					return book.locations.load(stored);
 				} else {
 					// Or generate the locations on the fly
 					// Can pass an option number of chars to break sections by
 					// default is 150 chars
+					overlay = 0;
 					return book.locations.generate(3600);
 				}
 			})
 			.then(function (locations) {
 				let pages = locations.length || 100;
 				maxPages = pages;
-				slider.addEventListener('change', () => slide(pages), false);
+				slider.addEventListener('change', () => slid(pages), false);
 				slider.addEventListener(
 					'mousedown',
 					function () {
@@ -227,13 +261,28 @@
 				localStorage.setItem(book.key() + '-locations', book.locations.save());
 			});
 	});
+
+	async function toggleTheme(root: HTMLElement | null) {
+		// root.style.setProperty('--oldlib-color', 'red');
+		if (currentTheme == 'dark') {
+			currentTheme = 'light';
+			bg = 'var(--light)';
+			color = 'var(--dark)';
+			root?.style.setProperty('background-color', 'var(--light)');
+		} else if (currentTheme == 'light') {
+			currentTheme = 'dark';
+			bg = 'var(--dark)';
+			color = 'var(--light)';
+			root?.style.setProperty('background-color', 'var(--dark)');
+		}
+	}
 </script>
 
 <svelte:head>
 	<meta name="theme-color" content="rgb(60, 58, 58)" />
 </svelte:head>
 
-<div class="container">
+<div class="container" style:background-color={bg} style:color>
 	<div class="contents" class:show={contentsShow}>
 		<ul>
 			<li class="text-end">
@@ -261,7 +310,11 @@
 			</li>
 			{#each cnts as c}
 				<li>
-					<a href={c.href} class="font-medium text-indigo-200 hover:text-indigo-300 active:text-indigo-300" onclick={goToChapter}>
+					<a
+						href={c.href}
+						class="font-medium text-indigo-200 hover:text-indigo-300 active:text-indigo-300"
+						onclick={goToChapter}
+					>
 						{c.label.trim()}
 					</a>
 					<hr class="color-black" />
@@ -270,11 +323,33 @@
 		</ul>
 	</div>
 	<div class="header">
-		<ReadingBar bind:contentsShow {title} />
+		<ReadingBar bind:contentsShow {title} {toggleTheme} {root} />
 	</div>
 	<div class="viewer-arrows">
 		<a id="prev" onclick={(e) => prev(e)} href="#prev" class="arrow"><span>‹</span></a>
-		<div id="viewer"></div>
+
+		{#if overlay == 1}
+			<div id="spinner">
+				<svg
+					xmlns="http://www.w3.org/2000/svg"
+					fill="currentColor"
+					height="32"
+					width="32"
+					viewBox="0 0 512 512"
+				>
+					<!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+					<path
+						id="myspinner"
+						d="M304 48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zm0 416a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM48 304a48 48 0 1 0 0-96 48 48 0 1 0 0 96zm464-48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM142.9 437A48 48 0 1 0 75 369.1 48 48 0 1 0 142.9 437zm0-294.2A48 48 0 1 0 75 75a48 48 0 1 0 67.9 67.9zM369.1 437A48 48 0 1 0 437 369.1 48 48 0 1 0 369.1 437z"
+					/>
+				</svg>
+			</div>
+			<!-- {:else if overlay == 0 && !isChanging} -->
+		{:else if overlay == 0}
+			<!-- in:fly={{ duration: 500, x: '-100%' }} -->
+			<!-- out:fly={{ delay: 200, duration: 500, x: '-100%' }} -->
+			<div id="viewer"></div>
+		{/if}
 		<a id="next" onclick={(e) => next(e)} href="#next" class="arrow"><span>›</span></a>
 	</div>
 
@@ -324,6 +399,36 @@
 		margin: 0 auto;
 		z-index: 1;
 		/* background-color: pink; */
+	}
+
+	#spinner {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 80dvh;
+		max-width: 80%;
+		min-width: 80%;
+		margin: 0 auto;
+		/* top: 50%;
+		left: 50%; */
+		/* transform: translateX(-50%) translateY(50%); */
+		z-index: 1;
+		animation: spin 1s infinite ease-out;
+	}
+
+	@keyframes spin {
+		0% {
+			transform: rotate(0);
+			opacity: 0;
+		}
+		50% {
+			opacity: 1;
+			transform: rotate(220deg);
+		}
+		100% {
+			opacity: 0;
+			transform: rotate(360deg);
+		}
 	}
 
 	.arrow {

@@ -11,13 +11,11 @@ nav {
     font-size: clamp( 8px, 5vh , 18px);
 }
 
-
-
 body, div.container {
-    /* background-color: var(--oldlib-color); */
-    /* color: var(--oldlib-bg); */
-    background: var(--oldlib-bg); 
-    color: var(--oldlib-color);
+    --dark: var(--oldlib-bg);
+    --light: var(--oldlib-color);
+    background: var(--dark); 
+    color: var(--light);
 }
 
 
